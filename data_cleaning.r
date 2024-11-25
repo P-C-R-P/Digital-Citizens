@@ -349,18 +349,14 @@ motivations <- list(
 
 # First create function to convert French into English
 
-convert_french <- function(word, words) {
-  for (name in names(words)) {
-    if (words[[name]] == word) {
-      return(name)
-    }
-  }
-  return(word)
+for (individual in seq_along(motivations)) {
+  french <- motivations[[individual]]
+  english <- names(motivations)[individual]
+  data$motivate_share <- gsub(french, english, data$motivate_share, ignore.case = TRUE)
 }
 
-motivation_columns <- sapply(motivations, function(french) {
-  motivation <- convert_french(french, motivations)
-  words <- unlist(strsplit(gsub("[^a-zA-Z ]", "", motivation), " "))
+motivation_columns <- sapply(names(motivations), function(english) {
+  words <- unlist(strsplit(gsub("[^a-zA-Z ]", "", english), " "))
   paste0("ms_", paste0(substr(words, 1, 1), collapse = ""))
 })
 
@@ -373,7 +369,7 @@ for (column in motivation_columns) {
 # Check if each motivation is included in response and if so change value to 1
 
 for (individual in seq_along(motivations)) {
-  motivation <- motivations[[individual]]
+  motivation <- names(motivations)[individual]
   code <- motivation_columns[individual]
   data[[code]] <- ifelse(grepl(motivation, data$motivate_share, ignore.case = TRUE), 1, 0)
 }
@@ -399,9 +395,14 @@ projects <- list(
 
 # First convert French into English
 
-research_columns <- sapply(projects, function(french) {
-  project <- convert_french(french, projects)
-  words <- unlist(strsplit(gsub("[^a-zA-Z ]", "", project), " "))
+for (individual in seq_along(projects)) {
+  french <- projects[[individual]]
+  english <- names(projects)[individual]
+  data$motivate_share <- gsub(french, english, data$motivate_share, ignore.case = TRUE)
+}
+
+research_columns <- sapply(names(projects), function(english) {
+  words <- unlist(strsplit(gsub("[^a-zA-Z ]", "", english), " "))
   tolower(paste0("co_", paste0(substr(words, 1, 1), collapse = "")))
 })
 
@@ -414,7 +415,7 @@ for (column in research_columns) {
 # Check if each motivation is included in response and if so change value to 1
 
 for (individual in seq_along(projects)) {
-  project <- projects[[individual]]
+  project <- names(projects)[individual]
   code <- research_columns[individual]
   data[[code]] <- ifelse(grepl(project, data$contributed_organisations, ignore.case = TRUE), 1, 0)
 }
@@ -427,5 +428,8 @@ for (row in seq_len(nrow(data))) {
   }
 }
 
+# Flatten the data
+
 data <- lapply(data, unlist)
+
 write.csv(data, "cleaned-data.csv", row.names = FALSE)
