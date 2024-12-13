@@ -903,22 +903,117 @@ summary(anova_education)
 anova_region <- aov(bw_pg ~ ro_macro, data = scrolling_use)
 summary(anova_region)
 
+# What type of project you have contributed to links to engagement?
+
+co_application <- c(co_columns, "interested_application")
+
+application <- data[, co_application]
+
+cor_matrix <- cor(application, use = "complete.obs")
+
+print(cor_matrix)
+
 # Does gamification interest those who are interested in engaging in research?
-# combined research score + app
+
+cor_matrix <- cor(data$interested_application, data$ms_ca, use = "complete.obs")
+
+print(cor_matrix)
+
+ggplot(data, aes(x = interested_application, y = ms_ca)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+
+model <- lm(ms_ca ~ interested_application, data = data)
+summary(model)
+
+###
+
+data$past_present <- rowSums(data[, c("previous_research", "interested_application")], na.rm = TRUE) / 2
+
+cor_matrix <- cor(data$past_present, data$ms_ca, use = "complete.obs")
+
+print(cor_matrix)
+
+ggplot(data, aes(x = past_present, y = ms_ca)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+
+model <- lm(ms_ca ~ past_present, data = data)
+summary(model)
 
 # Do concerns over data limit engagement?
-# concerns limit app + combined
+
+cor_matrix <- cor(data$interested_application, data$concern_score, use = "complete.obs")
+
+print(cor_matrix)
+
+ggplot(data, aes(x = interested_application, y = concern_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+
+model <- lm(concern_score ~ interested_application, data = data)
+summary(model)
+
+###
+
+cor_matrix <- cor(data$past_present, data$concern_score, use = "complete.obs")
+
+print(cor_matrix)
+
+ggplot(data, aes(x = past_present, y = concern_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+
+model <- lm(concern_score ~ past_present, data = data)
+summary(model)
+
+# What concerns over data limit engagement?
+
+cd_application <- c(cd_columns, "interested_application")
+
+limiting_factors <- data[, cd_application]
+
+cor_matrix <- cor(limiting_factors, use = "complete.obs")
+
+print(cor_matrix)
+
+###
+
+cd_application <- c(cd_columns, "past_present")
+
+limiting_factors <- data[, cd_application]
+
+cor_matrix <- cor(limiting_factors, use = "complete.obs")
+
+print(cor_matrix)
 
 # What kind of digital citizen is interested in contributing to research?
 # what use best predicts app + combined
 
-# What type of project you have contributed to links to engagement?
-# type vs mobile app
+pa_application <- c(pa_columns, "interested_application")
+
+application <- data[, pa_application]
+
+cor_matrix <- cor(application, use = "complete.obs")
+
+print(cor_matrix)
+
+###
+
+pa_application <- c(pa_columns, "past_present")
+
+application <- data[, pa_application]
+
+cor_matrix <- cor(application, use = "complete.obs")
+
+print(cor_matrix)
 
 # Which people are more motivated by egotistical or community-based motivations?
 # create egotistical / community-based categories
-
-# RESEARCH:
 
 # What demographics are interested in participating in research?
 # simple mobile app + combined score with prior research + previous
