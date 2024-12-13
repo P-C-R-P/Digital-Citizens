@@ -305,18 +305,6 @@ multimedia_communication <- c("pa_usmp", "pa_uima", "pa_mvocc")
 
 paralanguage_communication <- c("pa_uima", "pa_usmp", "pa_stomm", "pa_e", "pa_piofogc")
 
-# Create a general category for all administrative type tasks
-
-general <- c(productivity, finances)
-
-# Combine all communication based activities into one list
-
-communication <- c(rt_communication, asynchronous_communication, group_communication, audio_communication, visual_communication, written_communication, multimedia_communication, paralanguage_communication)
-
-# Remove any repeated values
-
-communication <- unique(communication)
-
 # Create new columns for categories with scores
 
 data$self_development <- rowSums(data[self_development], na.rm = TRUE) / length(self_development)
@@ -398,7 +386,7 @@ projects <- list(
 for (individual in seq_along(projects)) {
   french <- projects[[individual]]
   english <- names(projects)[individual]
-  data$motivate_share <- gsub(french, english, data$motivate_share, ignore.case = TRUE)
+  data$contributed_organisations <- gsub(french, english, data$contributed_organisations, ignore.case = TRUE)
 }
 
 research_columns <- sapply(names(projects), function(english) {

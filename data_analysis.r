@@ -415,39 +415,39 @@ if (cs_result$p.value < 0.05) {
 
 # Clustering to understand key groups
 
-numeric_data <- data[, sapply(data, is.numeric)]
+#numeric_data <- data[, sapply(data, is.numeric)]
 
-scaled_data <- scale(numeric_data)
+#scaled_data <- scale(numeric_data)
 
-summary(scaled_data)
+#summary(scaled_data)
 
-set.seed(123)
-wss <- numeric()
-for (k in 1:10) {
-  kmeans_result <- kmeans(scaled_data, centers = k, nstart = 25)
-  wss[k] <- kmeans_result$tot.withinss
-}
+#set.seed(123)
+#wss <- numeric()
+#for (k in 1:10) {
+  #kmeans_result <- kmeans(scaled_data, centers = k, nstart = 25)
+  #wss[k] <- kmeans_result$tot.withinss
+#}
 
-plot(1:10, wss,
-  type = "b", pch = 19, frame = FALSE,
-  xlab = "Number of clusters K", ylab = "Total within-clusters sum of squares",
-  main = "Elbow Method for Determining Optimal K"
-)
-kmeans_result <- kmeans(scaled_data, centers = 3)
+#plot(1:10, wss,
+  #type = "b", pch = 19, frame = FALSE,
+  #xlab = "Number of clusters K", ylab = "Total within-clusters sum of squares",
+  #main = "Elbow Method for Determining Optimal K"
+#)
+#kmeans_result <- kmeans(scaled_data, centers = 3)
 
-kmeans_result$cluster
-kmeans_result$centers
+#kmeans_result$cluster
+#kmeans_result$centers
 
-kmeans_result$tot.withinss
+#kmeans_result$tot.withinss
 
-data$cluster <- kmeans_result$cluster
+#data$cluster <- kmeans_result$cluster
 
-pca_result <- prcomp(scaled_data)
+#pca_result <- prcomp(scaled_data)
 
-plot(pca_result$x[, 1:2], col = data$cluster, pch = 16, main = "PCA - Clusters")
+#plot(pca_result$x[, 1:2], col = data$cluster, pch = 16, main = "PCA - Clusters")
 
-text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.7, col = "black")
+#text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.7, col = "black")
 
-loadings <- pca_result$rotation
+#loadings <- pca_result$rotation
 
-loadings[, 1:2]
+#loadings[, 1:2]
