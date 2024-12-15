@@ -431,6 +431,19 @@
 age                  1.0000000      0.6808046          -0.2489726
 years_internet       0.6808046      1.0000000          -0.1052089
 normalised_literacy -0.2489726     -0.1052089           1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$normalised_literacy
+t = -3.5434, df = 190, p-value = 0.0004971
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3772793 -0.1112879
+sample estimates:
+       cor 
+-0.2489726 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.05  0.0477   0.095  0.758
 Residuals       190  95.16  0.5009               
@@ -447,6 +460,20 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age                1.0000000      0.6808046        -0.1797276
 years_internet     0.6808046      1.0000000         0.1567520
 competent_digital -0.1797276      0.1567520         1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$competent_digital
+t = -2.5184, df = 190, p-value = 0.01261
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.31336055 -0.03911478
+sample estimates:
+       cor 
+-0.1797276 
+
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value  Pr(>F)   
 gender_identity   1   6.31   6.313   9.407 0.00248 **
 Residuals       190 127.50   0.671                   
@@ -465,6 +492,20 @@ Residuals   189  131.1  0.6937
 age                1.0000000     0.68080455       -0.26187879
 years_internet     0.6808046     1.00000000        0.07292447
 combined_literacy -0.2618788     0.07292447        1.00000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$combined_literacy
+t = -3.7403, df = 190, p-value = 0.0002433
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3890591 -0.1249024
+sample estimates:
+       cor 
+-0.2618788 
+
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value Pr(>F)  
 gender_identity   1  0.119 0.11939   5.086 0.0253 *
 Residuals       190  4.460 0.02347                 
@@ -563,6 +604,8 @@ F-statistic: 13.99 on 1 and 190 DF,  p-value: 0.0002433
 age                      1.0000000     0.68080455             -0.12532797
 years_internet           0.6808046     1.00000000             -0.06538346
 normalised_paralanguage -0.1253280    -0.06538346              1.00000000
+[1] "Not significant"
+[1] "Not significant"
                  Df Sum Sq  Mean Sq F value Pr(>F)
 gender_identity   1  0.001 0.000973   0.057  0.812
 Residuals       190  3.243 0.017067               
@@ -579,6 +622,20 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age             1.0000000      0.6808046    -0.2571207
 years_internet  0.6808046      1.0000000    -0.1256657
 communication  -0.2571207     -0.1256657     1.0000000
+[1] "Not significant"
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$communication
+t = -3.6675, df = 190, p-value = 0.0003179
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3847212 -0.1198772
+sample estimates:
+       cor 
+-0.2571207 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.65  0.6539   0.942  0.333
 Residuals       190 131.96  0.6945               
@@ -595,6 +652,20 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age             1.0000000     0.68080455  -0.20168025
 years_internet  0.6808046     1.00000000  -0.07585783
 instrumental   -0.2016802    -0.07585783   1.00000000
+[1] "Not significant"
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$instrumental
+t = -2.8383, df = 190, p-value = 0.005029
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.33375659 -0.06183802
+sample estimates:
+       cor 
+-0.2016802 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.07  0.0686   0.116  0.734
 Residuals       190 112.73  0.5933               
@@ -611,6 +682,32 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age             1.0000000      0.6808046 -0.2344898
 years_internet  0.6808046      1.0000000 -0.1665128
 expressive     -0.2344898     -0.1665128  1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$expressive
+t = -2.3277, df = 190, p-value = 0.02098
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.30102306 -0.02550589
+sample estimates:
+       cor 
+-0.1665128 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$expressive
+t = -3.3249, df = 190, p-value = 0.001061
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.36401089 -0.09607167
+sample estimates:
+       cor 
+-0.2344898 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   1.27   1.269   1.797  0.182
 Residuals       190 134.13   0.706               
@@ -765,6 +862,32 @@ pa_uatcwat -0.14817485  0.081281393
 age              1.0000000      0.6808046      -0.3104696
 years_internet   0.6808046      1.0000000      -0.1684027
 diversity_score -0.3104696     -0.1684027       1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$diversity_score
+t = -2.3549, df = 190, p-value = 0.01955
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3027903 -0.0274490
+sample estimates:
+       cor 
+-0.1684027 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$diversity_score
+t = -4.502, df = 190, p-value = 1.172e-05
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.4330393 -0.1766267
+sample estimates:
+       cor 
+-0.3104696 
+
                  Df Sum Sq  Mean Sq F value Pr(>F)
 gender_identity   1 0.0007 0.000738   0.053  0.819
 Residuals       190 2.6643 0.014022               
@@ -779,6 +902,8 @@ Residuals   189 2.6148 0.01384
 age            1.00000000     0.68080455    0.09243575
 years_internet 0.68080455     1.00000000   -0.01561097
 concern_score  0.09243575    -0.01561097    1.00000000
+[1] "Not significant"
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   1.13   1.132   1.054  0.306
 Residuals       190 204.07   1.074               
@@ -807,6 +932,32 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age             1.0000000      0.6808046 -0.2387651
 years_internet  0.6808046      1.0000000 -0.2012444
 pa_usmp        -0.2387651     -0.2012444  1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$pa_usmp
+t = -2.8319, df = 190, p-value = 0.005126
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.33335285 -0.06138546
+sample estimates:
+       cor 
+-0.2012444 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$pa_usmp
+t = -3.3892, df = 190, p-value = 0.0008524
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3679332 -0.1005568
+sample estimates:
+       cor 
+-0.2387651 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1    5.8   5.792   2.659  0.105
 Residuals       190  413.9   2.178               
@@ -916,6 +1067,12 @@ ro_macro      2   0.03 0.01484   0.177  0.838
 Residuals   189  15.89 0.08406               
 [1] "Does greater involvement in a project motivate participation?"
 [1] "Significant"
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 7.0999, df = 1, p-value = 0.007709
+
    
      0  1
   0 80 70
@@ -992,23 +1149,23 @@ F-statistic: 0.7401 on 1 and 190 DF,  p-value: 0.3907
 [1] "Not significant"
 [1] "Not significant"
 [1] "Significant"
+
+	Pearson's Chi-squared test
+
+data:  contingency_table
+X-squared = 9.0235, df = 2, p-value = 0.01098
+
                          
                            0  1
-  bern                     2  0
-  fribourg                 1  2
-  genève                   2  0
-  jura                     1  0
-  neuchâtel                1  1
   non-swiss, european     61 53
   non-swiss, non-european  8 25
-  st. gallen               0  1
-  ticino                   1  7
-  valais                   2  5
-  vaud                    13  6
+  swiss                   23 22
                                age years_internet interested_application
 age                     1.00000000     0.68080455            -0.08434574
 years_internet          0.68080455     1.00000000            -0.06404339
 interested_application -0.08434574    -0.06404339             1.00000000
+[1] "Not significant"
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.48  0.4836   1.937  0.166
 Residuals       190  47.43  0.2496               
@@ -1025,6 +1182,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 age               1.0000000     0.68080455      -0.13395911
 years_internet    0.6808046     1.00000000      -0.06052165
 self_development -0.1339591    -0.06052165       1.00000000
+[1] "Not significant"
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.98  0.9755   1.319  0.252
 Residuals       190 140.54  0.7397               
@@ -1148,6 +1307,12 @@ F-statistic: 5.211 on 1 and 190 DF,  p-value: 0.02355
      0  1
   0 43 49
   1 30 70
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 5.0093, df = 1, p-value = 0.02521
+
 [1] 0.172263
 
 Call:
@@ -1316,6 +1481,12 @@ co_ihnctarp  0.0001327291  0.535538470
 [1] "What demographics have engaged in research before?"
 [1] "Not significant"
 [1] "Significant"
+
+	Pearson's Chi-squared test
+
+data:  contingency_table
+X-squared = 13.623, df = 4, p-value = 0.0086
+
                                   
                                     0  1
   Bachelor’s degree, or equivalent 43 44
@@ -1344,6 +1515,32 @@ Residuals   189  44.55  0.2357
 age             1.0000000      0.6808046    -0.3932908
 years_internet  0.6808046      1.0000000    -0.1845365
 entertainment  -0.3932908     -0.1845365     1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$entertainment
+t = -5.8963, df = 190, p-value = 1.67e-08
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.5066804 -0.2665262
+sample estimates:
+       cor 
+-0.3932908 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$entertainment
+t = -2.5881, df = 190, p-value = 0.0104
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.31783905 -0.04408009
+sample estimates:
+       cor 
+-0.1845365 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.33  0.3286   0.419  0.518
 Residuals       190 149.07  0.7846               
@@ -1358,6 +1555,20 @@ Residuals   189 146.96  0.7775
 age             1.0000000     0.68080455 -0.30459639
 years_internet  0.6808046     1.00000000 -0.07534404
 bw_pg          -0.3045964    -0.07534404  1.00000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$bw_pg
+t = -4.408, df = 190, p-value = 1.742e-05
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.4277542 -0.1703352
+sample estimates:
+       cor 
+-0.3045964 
+
+[1] "Not significant"
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1   0.23  0.2311   0.182   0.67
 Residuals       190 241.08  1.2688               
@@ -1625,6 +1836,13 @@ pa_ucocc                          0.176061356
 pa_uatcwat                        0.166096935
 interested_application            1.000000000
 [1] "Does gamification interest those who are interested in an application?"
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 3.6949, df = 1, p-value = 0.05458
+
+[1] "Not significant"
 [1] 0.1633866
 
 Call:
@@ -1646,6 +1864,25 @@ Multiple R-squared:  0.0267,	Adjusted R-squared:  0.02157
 F-statistic: 5.211 on 1 and 190 DF,  p-value: 0.02355
 
 [1] "Does gamification interest those who are interested in research in the past and present?"
+
+Call:
+glm(formula = ms_ca ~ past_present, family = binomial(), data = data)
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -4.748      1.073  -4.423 9.73e-06 ***
+past_present    2.446      1.232   1.985   0.0471 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 72.656  on 191  degrees of freedom
+Residual deviance: 67.453  on 190  degrees of freedom
+AIC: 71.453
+
+Number of Fisher Scoring iterations: 7
+
 [1] 0.1546853
 
 Call:
@@ -1667,6 +1904,24 @@ Multiple R-squared:  0.02393,	Adjusted R-squared:  0.01879
 F-statistic: 4.658 on 1 and 190 DF,  p-value: 0.03217
 
 [1] "Do concerns over data relate to interest in an application?"
+
+Call:
+glm(formula = interested_application ~ concern_score, family = binomial(), 
+    data = data)
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)
+(Intercept)   0.006903   0.443616   0.016    0.988
+concern_score 0.025481   0.139773   0.182    0.855
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 265.84  on 191  degrees of freedom
+Residual deviance: 265.80  on 190  degrees of freedom
+AIC: 269.8
+
+Number of Fisher Scoring iterations: 3
+
 [1] 0.01315746
 
 Call:
@@ -2017,6 +2272,142 @@ pa_ml                             0.119468542
 pa_ucocc                          0.176061356
 pa_uatcwat                        0.166096935
 interested_application            1.000000000
+
+Call:
+glm(formula = interested_application ~ pa_svmomvc, family = binomial(), 
+    data = data)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept)  -1.0350     0.5481  -1.888   0.0590 .
+pa_svmomvc    0.2254     0.1061   2.124   0.0337 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 265.84  on 191  degrees of freedom
+Residual deviance: 261.13  on 190  degrees of freedom
+AIC: 265.13
+
+Number of Fisher Scoring iterations: 4
+
+
+Call:
+glm(formula = interested_application ~ pa_womsrv, family = binomial(), 
+    data = data)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept) -0.63795    0.37145  -1.717   0.0859 .
+pa_womsrv    0.17219    0.08143   2.115   0.0345 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 265.84  on 191  degrees of freedom
+Residual deviance: 261.26  on 190  degrees of freedom
+AIC: 265.26
+
+Number of Fisher Scoring iterations: 4
+
+
+Call:
+glm(formula = interested_application ~ pa_ucocc, family = binomial(), 
+    data = data)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept)  -1.3341     0.6088  -2.191   0.0284 *
+pa_ucocc      0.3062     0.1275   2.402   0.0163 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 265.84  on 191  degrees of freedom
+Residual deviance: 259.81  on 190  degrees of freedom
+AIC: 263.81
+
+Number of Fisher Scoring iterations: 4
+
+
+Call:
+glm(formula = interested_application ~ pa_uatcwat, family = binomial(), 
+    data = data)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept)  -0.6602     0.3577  -1.846   0.0649 .
+pa_uatcwat    0.1879     0.0824   2.280   0.0226 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 265.84  on 191  degrees of freedom
+Residual deviance: 260.50  on 190  degrees of freedom
+AIC: 264.5
+
+Number of Fisher Scoring iterations: 4
+
+[1] 0.1557052
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$pa_svmomvc and data$interested_application
+t = 2.1727, df = 190, p-value = 0.03104
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.01441474 0.29089941
+sample estimates:
+      cor 
+0.1557052 
+
+[1] 0.1538568
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$pa_womsrv and data$interested_application
+t = 2.1463, df = 190, p-value = 0.03312
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.01252132 0.28916495
+sample estimates:
+      cor 
+0.1538568 
+
+[1] 0.1760614
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$pa_ucocc and data$interested_application
+t = 2.4653, df = 190, p-value = 0.01458
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.0353340 0.3099422
+sample estimates:
+      cor 
+0.1760614 
+
+[1] 0.1660969
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$pa_uatcwat and data$interested_application
+t = 2.3217, df = 190, p-value = 0.02131
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.0250785 0.3006341
+sample estimates:
+      cor 
+0.1660969 
+
 [1] "What kind of digital citizen is interested in research in the past and present?"
                pa_stomm    pa_uima pa_svmomvc  pa_mvocc          pa_e
 pa_stomm     1.00000000 0.57839080 0.39657267 0.3892957  0.4393670680
@@ -2210,11 +2601,57 @@ pa_ml         0.43804844 1.00000000 0.32707058 0.29079803   0.08592425
 pa_ucocc      0.25136652 0.32707058 1.00000000 0.20177206   0.06995646
 pa_uatcwat    0.20048189 0.29079803 0.20177206 1.00000000   0.20350437
 past_present -0.03475714 0.08592425 0.06995646 0.20350437   1.00000000
+[1] "What demographics are interested in participating in research in the past and present?"
+                       age years_internet past_present
+age             1.00000000      0.6808046  -0.09804796
+years_internet  0.68080455      1.0000000  -0.02572490
+past_present   -0.09804796     -0.0257249   1.00000000
+[1] "Not significant"
+[1] "Not significant"
+                 Df Sum Sq Mean Sq F value Pr(>F)
+gender_identity   1  0.137  0.1366   0.956   0.33
+Residuals       190 27.164  0.1430               
+                     Df Sum Sq Mean Sq F value Pr(>F)   
+education_completed   4  2.069  0.5173   3.834 0.0051 **
+Residuals           187 25.232  0.1349                  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+             Df Sum Sq Mean Sq F value Pr(>F)  
+ro_macro      2  1.146  0.5730   4.141 0.0174 *
+Residuals   189 26.155  0.1384                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 [1] "Which people are more motivated by egotistical motivations?"
                           age years_internet egotistical_motive
 age                 1.0000000      0.6808046         -0.3060114
 years_internet      0.6808046      1.0000000         -0.1747701
 egotistical_motive -0.3060114     -0.1747701          1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$egotistical_motive
+t = -4.4306, df = 190, p-value = 1.585e-05
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.4290283 -0.1718500
+sample estimates:
+       cor 
+-0.3060114 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$egotistical_motive
+t = -2.4467, df = 190, p-value = 0.01533
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.30873749 -0.03400336
+sample estimates:
+       cor 
+-0.1747701 
+
                  Df Sum Sq Mean Sq F value Pr(>F)
 gender_identity   1  0.071 0.07140   1.408  0.237
 Residuals       190  9.631 0.05069               
@@ -2229,6 +2666,32 @@ Residuals   189  9.604 0.05081
 age                1.0000000      0.6808046        -0.2970395
 years_internet     0.6808046      1.0000000        -0.2610493
 collective_motive -0.2970395     -0.2610493         1.0000000
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$age and data$collective_motive
+t = -4.2879, df = 190, p-value = 2.866e-05
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.4209417 -0.1622563
+sample estimates:
+       cor 
+-0.2970395 
+
+[1] "Significant"
+
+	Pearson's product-moment correlation
+
+data:  data$years_internet and data$collective_motive
+t = -3.7276, df = 190, p-value = 0.000255
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.3883033 -0.1240259
+sample estimates:
+       cor 
+-0.2610493 
+
                  Df Sum Sq Mean Sq F value Pr(>F)  
 gender_identity   1  0.199 0.19861   5.085 0.0253 *
 Residuals       190  7.421 0.03906                 
@@ -2240,25 +2703,98 @@ Residuals           187  7.490 0.04005
              Df Sum Sq Mean Sq F value Pr(>F)
 ro_macro      2  0.165 0.08258   2.094  0.126
 Residuals   189  7.454 0.03944               
-[1] "What demographics are interested in participating in research in the past and present?"
-                       age years_internet past_present
-age             1.00000000      0.6808046  -0.09804796
-years_internet  0.68080455      1.0000000  -0.02572490
-past_present   -0.09804796     -0.0257249   1.00000000
-                 Df Sum Sq Mean Sq F value Pr(>F)
-gender_identity   1  0.137  0.1366   0.956   0.33
-Residuals       190 27.164  0.1430               
-                     Df Sum Sq Mean Sq F value Pr(>F)   
-education_completed   4  2.069  0.5173   3.834 0.0051 **
-Residuals           187 25.232  0.1349                  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-             Df Sum Sq Mean Sq F value Pr(>F)  
-ro_macro      2  1.146  0.5730   4.141 0.0174 *
-Residuals   189 26.155  0.1384                 
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-[1] "What motivates individuals to be interest in an application?"
+[1] "What motivates individuals to be interesed in an application?"
+[1] "Significant"
+   
+     0  1
+  0 73 59
+  1 19 41
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 8.3114, df = 1, p-value = 0.00394
+
+[1] "Significant"
+   
+     0  1
+  0 89 80
+  1  3 20
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 11.195, df = 1, p-value = 0.0008201
+
+[1] "Significant"
+   
+     0  1
+  0 82 77
+  1 10 23
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 4.1381, df = 1, p-value = 0.04193
+
+[1] "Significant"
+   
+     0  1
+  0 80 70
+  1 12 30
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 7.0999, df = 1, p-value = 0.007709
+
+[1] "Significant"
+   
+     0  1
+  0 67 46
+  1 25 54
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 13.153, df = 1, p-value = 0.000287
+
+[1] "Significant"
+   
+     0  1
+  0 70 50
+  1 22 50
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 12.822, df = 1, p-value = 0.0003425
+
+[1] "Significant"
+   
+     0  1
+  0 71 49
+  1 21 51
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 15.048, df = 1, p-value = 0.0001048
+
+[1] "Not significant"
+[1] "Not significant"
+[1] "Not significant"
+[1] "Significant"
+   
+     0  1
+  0 46 85
+  1 46 15
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  contingency_table
+X-squared = 25.488, df = 1, p-value = 4.452e-07
+
                             ms_fc      ms_aic      ms_cip ms_hamaritp
 ms_fc                   1.0000000  0.27034690  0.31831656  0.24123300
 ms_aic                  0.2703469  1.00000000  0.34210993  0.15398465
@@ -2311,7 +2847,7 @@ ms_tptswfaf                         0.1487004
 ms_ca                               0.1633866
 ms_nota                            -0.3755445
 interested_application              1.0000000
-[1] "What motivates individuals to be interest in research in the past and present?"
+[1] "What motivates individuals to be interested in research in the past and present?"
                   ms_fc      ms_aic      ms_cip ms_hamaritp    ms_lasor
 ms_fc         1.0000000  0.27034690  0.31831656  0.24123300  0.21264352
 ms_aic        0.2703469  1.00000000  0.34210993  0.15398465  0.08267399
