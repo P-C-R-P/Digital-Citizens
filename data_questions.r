@@ -1,8 +1,9 @@
 library(ggplot2)
 
 data <- read.csv("final-data.csv")
-
 data <- data[, !names(data) %in% "romansh_canton"]
+data <- subset(data, select = -concerns_score)
+data <- subset(data, select = -familiarity_score)
 
 data$ro_macro <- ifelse(data$region_origin == "non-swiss, european",
   "non-swiss, european",
@@ -13,11 +14,8 @@ data$ro_macro <- ifelse(data$region_origin == "non-swiss, european",
 )
 
 data$normalised_literacy <- data$digital_literacy / 30
-
-data$combined_literacy <- data$normalised_literacy * data$competent_digital
-
-data$normalised_paralanguage <- data$paralanguage_communication / 5
-
+data$combined_literacy <- (data$normalised_literacy / 7) * (data$competent_digital / 5)
+data$normalised_paralanguage <- data$paralanguage_communication / 7
 data$general <- (data$productivity + data$finances) / 2
 
 communication <- c("pa_uima", "pa_slof", "pa_mvocc", "pa_svmomvc", "pa_usmp", "pa_sospov", "pa_womsrv", "pa_womsrv", "pa_stomm", "pa_e", "pa_piofogc")
@@ -25,268 +23,672 @@ communication <- c("pa_uima", "pa_slof", "pa_mvocc", "pa_svmomvc", "pa_usmp", "p
 data$communication <- rowSums(data[communication], na.rm = TRUE) / length(communication)
 
 instrumental <- c("pa_uatcwat", "pa_ucor", "pa_saot", "pa_b", "pa_l", "pa_bw", "pa_si", "pa_ucocc", "pa_ml", "pa_sogdcs")
-
 expressive <- c("pa_usmp", "pa_womsrv", "pa_svmomvc", "pa_mgom", "pa_epov", "pa_tpov", "pa_sospov", "pa_stomm", "pa_piofogc")
 
 data$instrumental <- rowSums(data[instrumental], na.rm = TRUE) / length(instrumental)
-
 data$expressive <- rowSums(data[expressive], na.rm = TRUE) / length(expressive)
 
+data$university_lausanne <- as.factor(data$university_lausanne)
 data$gender_identity <- as.factor(data$gender_identity)
 data$education_completed <- as.factor(data$education_completed)
 data$ro_macro <- as.factor(data$ro_macro)
 data$age <- as.numeric(data$age)
 data$years_internet <- as.numeric(data$years_internet)
-data$swiss <- as.factor(data$swiss)
-data$european <- as.factor(data$european)
 
-# Who uses digital technology regularly?
+pa_columns <- grep("^pa_", colnames(data), value = TRUE)
 
-regularly <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "normalised_literacy")]
+diversity_column <- apply(data[, pa_columns], 1, function(x) sum(x >= 3 & x <= 7))
 
-summary(regularly)
+data$diversity_score <- diversity_column / 30
 
-ggplot(regularly, aes(x = gender_identity, y = normalised_literacy)) +
+cd_columns <- grep("^cd_", colnames(data), value = TRUE)
+
+data$concern_score <- rowSums(data[, cd_columns], na.rm = TRUE) / 8
+data$acknowledgement <- (data$ms_aic + data$ms_cip) / 2
+
+colnames(data)[colnames(data) == "self-development"] <- "self_development"
+
+data$sociolinguistics_score <- rowSums(data[, c("ft_cmc", "ft_pos", "ft_p", "ft_i")], na.rm = TRUE) / 4
+data$previous_research <- rowSums(data[, c("co_auoei", "co_ahomrc", "co_ago", "co_acono", "co_acofc")], na.rm = TRUE) / 5
+
+co_columns <- grep("^co_", colnames(data), value = TRUE)
+
+data$bw_pg <- rowSums(data[, c("pa_bw", "pa_pg")], na.rm = TRUE) / 2
+
+co_application <- c(co_columns, "interested_application")
+
+application <- data[, co_application]
+
+data$past_present <- rowSums(data[, c("contributed_research", "interested_application")], na.rm = TRUE) / 2
+
+cd_application <- c(cd_columns, "interested_application")
+
+limiting_factors <- data[, cd_application]
+
+cd_pp <- c(cd_columns, "past_present")
+
+lf_pp <- data[, cd_pp]
+
+pa_application <- c(pa_columns, "interested_application")
+
+application <- data[, pa_application]
+
+pa_pp <- c(pa_columns, "past_present")
+
+application_pp <- data[, pa_pp]
+
+egotistical <- c("ms_fc", "ms_aic", "ms_cip", "ms_no", "ms_lasor", "ms_lam", "ms_las", "ms_ca")
+
+collective <- c("ms_hamaritp", "ms_no", "ms_tptswfaf", "ms_lasor", "ms_ca")
+
+data$egotistical_motive <- rowSums(data[egotistical], na.rm = TRUE) / length(egotistical)
+data$collective_motive <- rowSums(data[collective], na.rm = TRUE) / length(collective)
+
+ms_columns <- grep("^ms_", colnames(data), value = TRUE)
+ms_application <- c(ms_columns, "interested_application")
+ms_ia <- data[, ms_application]
+ms_research <- c(ms_columns, "past_present")
+
+research_motives <- data[, ms_research]
+
+co_pa <- c(pa_columns, co_columns)
+
+# OUTPUT
+
+sink("output.txt", type = "output")
+
+# Descriptive statistics
+
+print("Descriptive statistics")
+
+summary(data)
+
+# Standard Deviations
+
+# Age
+
+sd_age <- sd(data$age)
+
+print("Age:")
+print(sd_age)
+
+# Competency
+
+sd_cd <- sd(data$competent_digital)
+
+print("Competency:")
+print(sd_cd)
+
+# Algorithms
+
+sd_ua <- sd(data$understand_algorithms)
+
+print("Algorithms:")
+print(sd_ua)
+
+# Familiarity
+
+sd_cs <- sd(data$ft_cs)
+
+print("Familiarity:")
+print(sd_cs)
+
+# Diversity
+
+sd_ds <- sd(data$diversity_score)
+
+print("Diversity:")
+print(sd_ds)
+
+# Interest
+
+sd_pp <- sd(data$past_present)
+
+print("Interest:")
+print(sd_pp)
+
+# Chi2 Tests
+
+# GENDER IDENTITY VS UNIVERSITY OF LAUSANNE (SIGNIFICANT)
+
+print("UNIVERSITY OF LAUSANNE VS REGION OF ORIGIN (SIGNIFICANT)")
+
+contingency_table <- table(data$gender_identity, data$university_lausanne)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS REGION OF ORIGIN (SIGNIFICANT)
+
+print("UNIVERSITY OF LAUSANNE VS REGION OF ORIGIN (SIGNIFICANT)")
+
+contingency_table <- table(data$university_lausanne, data$region_origin)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS REGION OF ORIGIN (MACRO) (SIGNIFICANT)
+
+print("UNIVERSITY OF LAUSANNE VS REGION OF ORIGIN (MACRO) (SIGNIFICANT)")
+
+contingency_table <- table(data$university_lausanne, data$ro_macro)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS AGE (SIGNIFICANT)
+
+print("UNIVERSITY OF LAUSANNE VS AGE (SIGNIFICANT)")
+
+contingency_table <- table(data$university_lausanne, data$age)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("UNIVERSITY OF LAUSANNE VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$university_lausanne, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("REGION OF ORIGIN VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$region_origin, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN (MACRO) VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("REGION OF ORIGIN (MACRO) VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$ro_macro, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN VS INTERESTED IN FUTURE APPLICATION (SIGNIFICANT)
+
+print("REGION OF ORIGIN VS INTERESTED IN FUTURE APPLICATION (SIGNIFICANT)")
+
+contingency_table <- table(data$region_origin, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN (MACRO) VS INTERESTED IN FUTURE APPLICATION (SIGNIFICANT)
+
+print("REGION OF ORIGIN (MACRO) VS INTERESTED IN FUTURE APPLICATION (SIGNIFICANT)")
+
+contingency_table <- table(data$ro_macro, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# LEVEL OF EDUCATION COMPLETED VS AGE (SIGNIFICANT)
+
+print("LEVEL OF EDUCATION COMPLETED VS AGE (SIGNIFICANT)")
+
+contingency_table <- table(data$education_completed, data$age)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# LEVEL OF EDUCATION COMPLETED VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("LEVEL OF EDUCATION COMPLETED VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$education_completed, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# AGE VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("AGE VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$age, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# GENDER IDENTITY VS LEVEL OF EDUCATION COMPLETED (SIGNIFICANT)
+
+print("GENDER IDENTITY VS LEVEL OF EDUCATION COMPLETED (SIGNIFICANT)")
+
+contingency_table <- table(data$gender_identity, data$education_completed)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# GENDER IDENTITY VS REGION OF ORIGIN (SIGNIFICANT)
+
+print("GENDER IDENTITY VS REGION OF ORIGIN (SIGNIFICANT)")
+
+contingency_table <- table(data$gender_identity, data$region_origin)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# GENDER IDENTITY VS YEARS OF INTERNET USAGE (SIGNIFICANT)
+
+print("GENDER IDENTITY VS YEARS OF INTERNET USAGE (SIGNIFICANT)")
+
+contingency_table <- table(data$gender_identity, data$years_internet)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Who uses digital technology the most frequently?
+
+print("Who uses digital technology the most frequently?")
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = normalised_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Digital Use", x = "Gender Identity", y = "Digital Use")
 
-ggplot(regularly, aes(x = education_completed, y = normalised_literacy)) +
+ggplot(data, aes(x = education_completed, y = normalised_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Digital Use", x = "Education Level", y = "Digital Use") +
+  scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(regularly, aes(x = ro_macro, y = normalised_literacy)) +
+ggplot(data, aes(x = ro_macro, y = normalised_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Digital Use", x = "Region of Origin", y = "Digital Use")
 
-numeric_vars <- regularly[, c("age", "years_internet", "normalised_literacy")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "normalised_literacy")], use = "complete.obs")
 
-anova_gender <- aov(normalised_literacy ~ gender_identity, data = regularly)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(normalised_literacy ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(normalised_literacy ~ education_completed, data = regularly)
+anova_education <- aov(normalised_literacy ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(normalised_literacy ~ ro_macro, data = regularly)
+anova_region <- aov(normalised_literacy ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Who uses digital technology effectively?
+# Who uses digital technology the most competently?
 
-effectively <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "competent_digital")]
+print("Who uses digital technology the most competently?")
 
-summary(effectively)
+# Plots
 
-ggplot(effectively, aes(x = gender_identity, y = competent_digital)) +
+ggplot(data, aes(x = gender_identity, y = competent_digital)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Digital Competency", x = "Gender Identity", y = "Digital Competency")
 
-ggplot(effectively, aes(x = education_completed, y = competent_digital)) +
+ggplot(data, aes(x = education_completed, y = competent_digital)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Digital Competency", x = "Education Level", y = "Digital Competency") +
+  scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(effectively, aes(x = ro_macro, y = competent_digital)) +
+ggplot(data, aes(x = ro_macro, y = competent_digital)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Digital Competency", x = "Region of Origin", y = "Digital Competency")
 
-numeric_vars <- effectively[, c("age", "years_internet", "competent_digital")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "competent_digital")], use = "complete.obs")
 
-anova_gender <- aov(competent_digital ~ gender_identity, data = effectively)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(competent_digital ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(competent_digital ~ education_completed, data = effectively)
+anova_education <- aov(competent_digital ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(competent_digital ~ ro_macro, data = effectively)
+anova_region <- aov(competent_digital ~ ro_macro, data = data)
+
 summary(anova_region)
 
-###
+# Who is the most digitally literate?
 
-effectively_combined <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "combined_literacy")]
+print("Who is the most digitally literate?")
 
-summary(effectively_combined)
+# Plots
 
-ggplot(effectively_combined, aes(x = gender_identity, y = combined_literacy)) +
+ggplot(data, aes(x = gender_identity, y = combined_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Digital Literacy", x = "Gender Identity", y = "Digital Literacy")
 
-ggplot(effectively_combined, aes(x = education_completed, y = combined_literacy)) +
+ggplot(data, aes(x = education_completed, y = combined_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Digital Literacy", x = "Education Level", y = "Digital Literacy") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(effectively_combined, aes(x = ro_macro, y = combined_literacy)) +
+ggplot(data, aes(x = ro_macro, y = combined_literacy)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Digital Literacy", x = "Region of Origin", y = "Digital Literacy")
 
-numeric_vars <- effectively_combined[, c("age", "years_internet", "combined_literacy")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "combined_literacy")], use = "complete.obs")
 
-anova_gender <- aov(combined_literacy ~ gender_identity, data = effectively_combined)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(combined_literacy ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(combined_literacy ~ education_completed, data = effectively_combined)
+anova_education <- aov(combined_literacy ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(combined_literacy ~ ro_macro, data = effectively_combined)
+anova_region <- aov(combined_literacy ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Does digital frequency predict digital confidence?
+# Does frequency of use relate to digital competence?
+
+print("Does frequency of use relate to digital competence?")
+
+# Linear Regression
 
 model <- lm(competent_digital ~ normalised_literacy, data = data)
 
 summary(model)
 
-# Does age predict digital literacy?
+# Does age relate to frequency of use?
+
+print("Does age relate to frequency of use?")
+
+# Linear Regression
 
 model <- lm(normalised_literacy ~ age, data = data)
 
 summary(model)
 
-model <- lm(combined_literacy ~ age, data = data)
+# Does age relate to digital competence?
 
-summary(model)
+print("Does age relate to digital competence?")
+
+# Linear Regression
 
 model <- lm(competent_digital ~ age, data = data)
 
 summary(model)
 
+# Does age relate to digital literacy?
+
+print("Does age relate to digital literacy?")
+
+# Linear Regression
+
+model <- lm(combined_literacy ~ age, data = data)
+
+summary(model)
+
 # What demographic produces the most paralanguage output?
 
-paralanguage <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "normalised_paralanguage")]
+print("What demographic produces the most paralanguage output?")
 
-summary(paralanguage)
+# Plots
 
-ggplot(paralanguage, aes(x = gender_identity, y = normalised_paralanguage)) +
+ggplot(data, aes(x = gender_identity, y = normalised_paralanguage)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Paralanguage Use", x = "Gender Identity", y = "Paralanguage Use")
 
-ggplot(paralanguage, aes(x = education_completed, y = normalised_paralanguage)) +
+ggplot(data, aes(x = education_completed, y = normalised_paralanguage)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Paralanguage Use", x = "Education Level", y = "Paralanguage Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(paralanguage, aes(x = ro_macro, y = normalised_paralanguage)) +
+ggplot(data, aes(x = ro_macro, y = normalised_paralanguage)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Paralanguage Use", x = "Region of Origin", y = "Paralanguage Use")
 
-numeric_vars <- paralanguage[, c("age", "years_internet", "normalised_paralanguage")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "normalised_paralanguage")], use = "complete.obs")
 
-anova_gender <- aov(normalised_paralanguage ~ gender_identity, data = paralanguage)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(normalised_paralanguage ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(normalised_paralanguage ~ education_completed, data = paralanguage)
+anova_education <- aov(normalised_paralanguage ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(normalised_paralanguage ~ ro_macro, data = paralanguage)
+anova_region <- aov(normalised_paralanguage ~ ro_macro, data = data)
+
 summary(anova_region)
 
 # What demographic produces the most communication output?
 
-all_communication <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "communication")]
+print("What demographic produces the most communication output?")
 
-summary(all_communication)
+# Plots
 
-ggplot(all_communication, aes(x = gender_identity, y = communication)) +
+ggplot(data, aes(x = gender_identity, y = communication)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Communication Use", x = "Gender Identity", y = "Communication Use")
 
-ggplot(all_communication, aes(x = education_completed, y = communication)) +
+ggplot(data, aes(x = education_completed, y = communication)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Communication Use", x = "Education Level", y = "Communication Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(all_communication, aes(x = ro_macro, y = communication)) +
+ggplot(data, aes(x = ro_macro, y = communication)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Communication Use", x = "Region of Origin", y = "Communication Use")
 
-numeric_vars <- all_communication[, c("age", "years_internet", "communication")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "communication")], use = "complete.obs")
 
-anova_gender <- aov(communication ~ gender_identity, data = all_communication)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(communication ~ gender_identity, data = data)
 summary(anova_gender)
 
-anova_education <- aov(communication ~ education_completed, data = all_communication)
+anova_education <- aov(communication ~ education_completed, data = data)
 summary(anova_education)
 
-anova_region <- aov(communication ~ ro_macro, data = all_communication)
+anova_region <- aov(communication ~ ro_macro, data = data)
 summary(anova_region)
 
-# Do demographic characteristics predict instrumental and expressive uses?
+# Do demographic characteristics relate to instrumental use?
 
-instrumental_use <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "instrumental")]
+print("Do demographic characteristics relate to instrumental use?")
 
-summary(instrumental_use)
+# Plots
 
-ggplot(instrumental_use, aes(x = gender_identity, y = instrumental)) +
+ggplot(data, aes(x = gender_identity, y = instrumental)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Instrumental Use", x = "Gender Identity", y = "Instrumental Use")
 
-ggplot(instrumental_use, aes(x = education_completed, y = instrumental)) +
+ggplot(data, aes(x = education_completed, y = instrumental)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Instrumental Use", x = "Education Level", y = "Instrumental Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(instrumental_use, aes(x = ro_macro, y = instrumental)) +
+ggplot(data, aes(x = ro_macro, y = instrumental)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Instrumental Use", x = "Region of Origin", y = "Instrumental Use")
 
-numeric_vars <- instrumental_use[, c("age", "years_internet", "instrumental")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "instrumental")], use = "complete.obs")
 
-anova_gender <- aov(instrumental ~ gender_identity, data = instrumental_use)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(instrumental ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(instrumental ~ education_completed, data = instrumental_use)
+anova_education <- aov(instrumental ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(instrumental ~ ro_macro, data = instrumental_use)
+anova_region <- aov(instrumental ~ ro_macro, data = data)
+
 summary(anova_region)
 
-###
+# Do demographic characteristics relate to expressive use?
 
-expressive_use <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "expressive")]
+print("Do demographic characteristics relate to expressive use?")
 
-summary(expressive_use)
+# Plots
 
-ggplot(expressive_use, aes(x = gender_identity, y = expressive)) +
+ggplot(data, aes(x = gender_identity, y = expressive)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Expressive Use", x = "Gender Identity", y = "Expressive Use")
 
-ggplot(expressive_use, aes(x = education_completed, y = expressive)) +
+ggplot(data, aes(x = education_completed, y = expressive)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Expressive Use", x = "Education Level", y = "Expressive Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(expressive_use, aes(x = ro_macro, y = expressive)) +
+ggplot(data, aes(x = ro_macro, y = expressive)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Expressive Use", x = "Region of Origin", y = "Expressive Use")
 
-numeric_vars <- expressive_use[, c("age", "years_internet", "expressive")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "expressive")], use = "complete.obs")
 
-anova_gender <- aov(expressive ~ gender_identity, data = expressive_use)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(expressive ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(expressive ~ education_completed, data = expressive_use)
+anova_education <- aov(expressive ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(expressive ~ ro_macro, data = expressive_use)
+anova_region <- aov(expressive ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# How do people use digital technology?
+# EDIT How do people use digital technology?
 
-pa_columns <- grep("^pa_", colnames(data), value = TRUE)
+print("How do people use digital technology?")
+
+# Clustering
 
 pa_data <- data[, pa_columns]
 
@@ -295,23 +697,25 @@ scaled_data <- scale(pa_data)
 summary(scaled_data)
 
 set.seed(123)
-wss <- numeric()
+
+wcss <- numeric()
 
 for (k in 1:10) {
   kmeans_result <- kmeans(scaled_data, centers = k, nstart = 25)
-  wss[k] <- kmeans_result$tot.withinss
+  wcss[k] <- kmeans_result$tot.withinss
 }
 
-plot(1:10, wss,
+plot(1:10, wcss,
   type = "b", pch = 19, frame = FALSE,
-  xlab = "Number of clusters K", ylab = "Total within-clusters sum of squares",
-  main = "Elbow Method for Determining Optimal K"
+  xlab = "Number of clusters", ylab = "Total",
+  main = "Elbow Method"
 )
 
-slope <- (wss[10] - wss[5]) / (10 - 5)
-intercept <- wss[5] - slope * 5
+slope <- (wcss[10] - wcss[5]) / (10 - 5)
 
-abline(a = intercept, b = slope, col = "red", lwd = 2, lty = 2)
+intercept <- wcss[5] - slope * 5
+
+abline(a = intercept, b = slope, col = "#0089c4", lwd = 2, lty = 2)
 
 kmeans_result <- kmeans(scaled_data, centers = 5, nstart = 25)
 
@@ -320,451 +724,770 @@ kmeans_result$centers
 
 data$cluster <- kmeans_result$cluster
 
+# PCA
+
 pca_result <- prcomp(scaled_data)
 
 plot(pca_result$x[, 1:2],
   col = data$cluster, pch = 16,
-  main = "PCA - Clusters", xlab = "PC1", ylab = "PC2"
+  main = "PCA", xlab = "PC1", ylab = "PC2"
 )
 
-text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.7, col = "black")
+text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.5, col = "black")
 
 loadings <- pca_result$rotation
 loadings[, 1:2]
 
-# Do young people engage in more diverse uses of digital technology?
+# Who engages in more diverse forms of using digital technology?
 
-diversity_column <- apply(data[, pa_columns], 1, function(x) sum(x >= 3 & x <= 7))
+print("Who engages in more diverse forms of using digital technology?")
 
-data$diversity_score <- diversity_column / 30
+# Plots
 
-diversity <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "diversity_score")]
-
-summary(diversity)
-
-ggplot(diversity, aes(x = gender_identity, y = diversity_score)) +
+ggplot(data, aes(x = gender_identity, y = diversity_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Diversity of Use", x = "Gender Identity", y = "Diversity of Use")
 
-ggplot(diversity, aes(x = education_completed, y = diversity_score)) +
+ggplot(data, aes(x = education_completed, y = diversity_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and  Diversity of Use", x = "Education Level", y = "Diversity of Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(diversity, aes(x = ro_macro, y = diversity_score)) +
+ggplot(data, aes(x = ro_macro, y = diversity_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Diversity of Use", x = "Region of Origin", y = "Diversity of Use")
 
-numeric_vars <- diversity[, c("age", "years_internet", "diversity_score")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "diversity_score")], use = "complete.obs")
 
-anova_gender <- aov(diversity_score ~ gender_identity, data = diversity)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(diversity_score ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(diversity_score ~ education_completed, data = diversity)
+anova_education <- aov(diversity_score ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(diversity_score ~ ro_macro, data = diversity)
+anova_region <- aov(diversity_score ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# How much do people trust digital technology?
+# Who does not trust data collection processes?
 
-cd_columns <- grep("^cd_", colnames(data), value = TRUE)
+print("Who does not trust data collection processes?")
 
-cd_data <- data[, cd_columns]
+# Plots
 
-data$concern_score <- rowSums(cd_data, na.rm = TRUE) / length(cd_columns)
-
-level_concern <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "concern_score")]
-
-summary(level_concern)
-
-ggplot(level_concern, aes(x = gender_identity, y = concern_score)) +
+ggplot(data, aes(x = gender_identity, y = concern_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Data Concern", x = "Gender Identity", y = "Data Concern")
 
-ggplot(level_concern, aes(x = education_completed, y = concern_score)) +
+ggplot(data, aes(x = education_completed, y = concern_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Data Concern", x = "Education Level", y = "Data Concern") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(level_concern, aes(x = ro_macro, y = concern_score)) +
+ggplot(data, aes(x = ro_macro, y = concern_score)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Data Concern", x = "Region of Origin", y = "Data Concern")
 
-numeric_vars <- level_concern[, c("age", "years_internet", "concern_score")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "concern_score")], use = "complete.obs")
 
-anova_gender <- aov(concern_score ~ gender_identity, data = level_concern)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(concern_score ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(concern_score ~ education_completed, data = level_concern)
+anova_education <- aov(concern_score ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(concern_score ~ ro_macro, data = level_concern)
+anova_region <- aov(concern_score ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Do young people tend to use social media more than older people?
+# Who uses social media the most?
 
-social_media <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "pa_usmp")]
+print("Who uses social media the most?")
 
-summary(social_media)
+# Chi2
 
-ggplot(social_media, aes(x = gender_identity, y = pa_usmp)) +
+contingency_table <- table(data$gender_identity, data$pa_usmp)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$education_completed, data$pa_usmp)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$region_origin, data$pa_usmp)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = pa_usmp)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Social Media Use", x = "Gender Identity", y = "Social Media Use")
 
-ggplot(social_media, aes(x = education_completed, y = pa_usmp)) +
+ggplot(data, aes(x = education_completed, y = pa_usmp)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Social Media Use", x = "Education Level", y = "Social Media Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(social_media, aes(x = ro_macro, y = pa_usmp)) +
+ggplot(data, aes(x = ro_macro, y = pa_usmp)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Social Media Use", x = "Region of Origin", y = "Social Media Use")
 
-numeric_vars <- social_media[, c("age", "years_internet", "pa_usmp")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "pa_usmp")], use = "complete.obs")
 
-anova_gender <- aov(pa_usmp ~ gender_identity, data = social_media)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(pa_usmp ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(pa_usmp ~ education_completed, data = social_media)
+anova_education <- aov(pa_usmp ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(pa_usmp ~ ro_macro, data = social_media)
+anova_region <- aov(pa_usmp ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Do people who use technology more frequently understand more about data privacy?
+# Are people who use technology more frequently more concerned about data collection processes?
 
-cor_matrix <- cor(data$normalised_literacy, data$concern_score, use = "complete.obs")
+print("Are people who use technology more frequently more concerned about data collection processes?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$normalised_literacy, data$concern_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = normalised_literacy, y = concern_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Frequency of Use and Concern Score", x = "Frequency of Use", y = "Concern Score")
+
+# Linear Regression
 
 model <- lm(concern_score ~ digital_literacy, data = data)
+
 summary(model)
 
-# Do people who use technology in more diverse ways understand more about data privacy?
+# Are people who use technology in more diverse ways more concerned about data collection processes?
 
-cor_matrix <- cor(data$diversity_score, data$concern_score, use = "complete.obs")
+print("Are people who use technology in more diverse ways more concerned about data collection processes?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$diversity_score, data$concern_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = diversity_score, y = concern_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Diversity of Use and Concern Score", x = "Diversity of Use", y = "Concern Score")
+
+# Linear Regression
 
 model <- lm(concern_score ~ diversity_score, data = data)
+
 summary(model)
 
 # Do people with algorithmic literacy have higher self-perceived competence?
 
-cor_matrix <- cor(data$understand_algorithms, data$competent_digital, use = "complete.obs")
+print("Do people with algorithmic literacy have higher self-perceived competence?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$understand_algorithms, data$competent_digital, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = understand_algorithms, y = competent_digital)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Algorithmic Literacy and Digital Competency", x = "Algorithmic Literacy", y = "Digital Competency")
+
+# Linear Regression
 
 model <- lm(competent_digital ~ understand_algorithms, data = data)
+
 summary(model)
 
-# Does acknowledgement appeal more to younger demographics?
+# Does acknowledgement in citations appeal to specific demographics?
 
-acknowledge <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "ms_aic")]
+print("Does acknowledgement in citations appeal to specific demographics?")
 
-summary(acknowledge)
+# Chi2
 
-ggplot(acknowledge, aes(x = gender_identity, y = ms_aic)) +
+contingency_table <- table(data$gender_identity, data$ms_aic)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$education_completed, data$ms_aic)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$region_origin, data$ms_aic)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Plot
+
+ggplot(data, aes(x = gender_identity, y = ms_aic)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Acknowledgemnt in Citations", x = "Gender Identity", y = "Acknowledgement in Citations")
 
-ggplot(acknowledge, aes(x = education_completed, y = ms_aic)) +
+ggplot(data, aes(x = education_completed, y = ms_aic)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Acknowledgemnt in Citations", x = "Education Level", y = "Acknowledgement in Citations") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(acknowledge, aes(x = ro_macro, y = ms_aic)) +
+ggplot(data, aes(x = ro_macro, y = ms_aic)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and and Acknowledgemnt in Citations", x = "Region of Origin", y = "Acknowledgemnt in Citations")
 
-numeric_vars <- acknowledge[, c("age", "years_internet", "ms_aic")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "ms_aic")], use = "complete.obs")
 
-anova_gender <- aov(ms_aic ~ gender_identity, data = acknowledge)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(ms_aic ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(ms_aic ~ education_completed, data = acknowledge)
+anova_education <- aov(ms_aic ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(ms_aic ~ ro_macro, data = acknowledge)
+anova_region <- aov(ms_aic ~ ro_macro, data = data)
+
 summary(anova_region)
 
-###
+# Does general acknowledgement appeal to specific demographics?
 
-data$acknowledgement <- (data$ms_aic + data$ms_cip) / 2
+print("Does general acknowledgement appeal to specific demographics?")
 
-acknowledge <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "acknowledgement")]
+# Plots
 
-summary(acknowledge)
-
-ggplot(acknowledge, aes(x = gender_identity, y = acknowledgement)) +
+ggplot(data, aes(x = gender_identity, y = acknowledgement)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Acknowledgement", x = "Gender Identity", y = "Acknowledgement")
 
-ggplot(acknowledge, aes(x = education_completed, y = acknowledgement)) +
+ggplot(data, aes(x = education_completed, y = acknowledgement)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Acknowledgement", x = "Education Level", y = "Acknowledgement") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(acknowledge, aes(x = ro_macro, y = acknowledgement)) +
+ggplot(data, aes(x = ro_macro, y = acknowledgement)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Acknowledgement", x = "Region of Origin", y = "Acknowledgement")
 
-numeric_vars <- acknowledge[, c("age", "years_internet", "acknowledgement")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "acknowledgement")], use = "complete.obs")
 
-anova_gender <- aov(acknowledgement ~ gender_identity, data = acknowledge)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(acknowledgement ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(acknowledgement ~ education_completed, data = acknowledge)
+anova_education <- aov(acknowledgement ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(acknowledgement ~ ro_macro, data = acknowledge)
+anova_region <- aov(acknowledgement ~ ro_macro, data = data)
+
 summary(anova_region)
 
 # Does greater involvement in a project motivate participation?
 
-cor_matrix <- cor(data$ms_hamaritp, data$interested_application, use = "complete.obs")
+print("Does greater involvement in a project motivate participation?")
 
-print(cor_matrix)
+# Chi2
+
+contingency_table <- table(data$ms_hamaritp, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Correlation
+
+correlation <- cor(data$ms_hamaritp, data$interested_application, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = ms_hamaritp, y = interested_application)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Active Role and Application Interest", x = "Active Role", y = "Application Interest")
+
+# Linear Regression
 
 model <- lm(interested_application ~ ms_hamaritp, data = data)
+
 summary(model)
 
-# Are young people interested more in learning a skill than other groups?
+# Who is interested in learning a skill?
 
-learning_skill <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "ms_las")]
+print("Who is interested in learning a skill?")
 
-summary(learning_skill)
+# Chi2
 
-ggplot(learning_skill, aes(x = gender_identity, y = ms_las)) +
+contingency_table <- table(data$gender_identity, data$ms_las)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$education_completed, data$ms_las)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$region_origin, data$ms_las)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = ms_las)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Learning a Skill", x = "Gender Identity", y = "Learning a Skill")
 
-ggplot(learning_skill, aes(x = education_completed, y = ms_las)) +
+ggplot(data, aes(x = education_completed, y = ms_las)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Learning a Skill", x = "Education Level", y = "Learning a Skill") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(learning_skill, aes(x = ro_macro, y = ms_las)) +
+ggplot(data, aes(x = ro_macro, y = ms_las)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Learning a Skill", x = "Region of Origin", y = "Learning a Skill")
 
-numeric_vars <- learning_skill[, c("age", "years_internet", "ms_las")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "ms_las")], use = "complete.obs")
 
-anova_gender <- aov(ms_las ~ gender_identity, data = learning_skill)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(ms_las ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(ms_las ~ education_completed, data = learning_skill)
+anova_education <- aov(ms_las ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(ms_las ~ ro_macro, data = learning_skill)
+anova_region <- aov(ms_las ~ ro_macro, data = data)
+
 summary(anova_region)
 
 # Is there a relationship between use of social media and interest in a mobile application?
 
-cor_matrix <- cor(data$pa_usmp, data$interested_application, use = "complete.obs")
+print("Is there a relationship between use of social media and interest in a mobile application?")
 
-print(cor_matrix)
+# Chi2
+
+contingency_table <- table(data$pa_usmp, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Correlation
+
+correlation <- cor(data$pa_usmp, data$interested_application, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = pa_usmp, y = interested_application)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Social Media Use and Application Interest", x = "Social Media Use", y = "Application Interest")
+
+# Linear Regression
 
 model <- lm(interested_application ~ pa_usmp, data = data)
+
 summary(model)
 
 # What demographics are interested in a mobile application?
 
-application <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "interested_application")]
+print("What demographics are interested in a mobile application?")
 
-summary(application)
+# Chi2
 
-ggplot(application, aes(x = gender_identity, y = interested_application)) +
+contingency_table <- table(data$gender_identity, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$education_completed, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$region_origin, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = interested_application)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Application Interest", x = "Gender Identity", y = "Application Interest")
 
-ggplot(application, aes(x = education_completed, y = interested_application)) +
+ggplot(data, aes(x = education_completed, y = interested_application)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Application Interest", x = "Education Level", y = "Application Interest") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(application, aes(x = ro_macro, y = interested_application)) +
+ggplot(data, aes(x = ro_macro, y = interested_application)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Application Interest", x = "Region of Origin", y = "Application Interest")
 
-numeric_vars <- application[, c("age", "years_internet", "interested_application")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "interested_application")], use = "complete.obs")
 
-anova_gender <- aov(interested_application ~ gender_identity, data = application)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(interested_application ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(interested_application ~ education_completed, data = application)
+anova_education <- aov(interested_application ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(interested_application ~ ro_macro, data = application)
+anova_region <- aov(interested_application ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Are better-educated individuals more likely to use technology for personal development?
+# What individuals are more likely to use technology for personal development?
 
-colnames(data)[colnames(data) == "self-development"] <- "self_development"
+print("What individuals are more likely to use technology for personal development?")
 
-development <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "self_development")]
+# Plots
 
-summary(development)
-
-ggplot(development, aes(x = gender_identity, y = self_development)) +
+ggplot(data, aes(x = gender_identity, y = self_development)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Self-Development Use", x = "Gender Identity", y = "Self-Development Use")
 
-ggplot(development, aes(x = education_completed, y = self_development)) +
+ggplot(data, aes(x = education_completed, y = self_development)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Self-Development Use", x = "Education Level", y = "Self-Development Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(development, aes(x = ro_macro, y = self_development)) +
+ggplot(data, aes(x = ro_macro, y = self_development)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Self-Development Use", x = "Region of Origin", y = "Self-Development Use")
 
-numeric_vars <- development[, c("age", "years_internet", "self_development")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "self_development")], use = "complete.obs")
 
-anova_gender <- aov(self_development ~ gender_identity, data = development)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(self_development ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(self_development ~ education_completed, data = development)
+anova_education <- aov(self_development ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(self_development ~ ro_macro, data = development)
+anova_region <- aov(self_development ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Is there a relationship between knowledge of sociolinguistics and citizen science?
+# Is there a relationship between knowledge of sociolinguistics and knowledge of citizen science?
 
-data$sociolinguistics_score <- rowSums(data[, c("ft_cmc", "ft_pos", "ft_p", "ft_i")], na.rm = TRUE) / 4
+print("Is there a relationship between knowledge of sociolinguistics and knowledge of citizen science?")
 
-cor_matrix <- cor(data$ft_cs, data$sociolinguistics_score, use = "complete.obs")
+# Correlation
 
-print(cor_matrix)
+correlation <- cor(data$ft_cs, data$sociolinguistics_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = ft_cs, y = sociolinguistics_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Citizen Science and Sociolinguistics Familiarity", x = "Citizen Science Familiarity", y = "Sociolinguistics Familiarity")
+
+# Linear Regression
 
 model <- lm(sociolinguistics_score ~ ft_cs, data = data)
+
 summary(model)
 
 # Does familiarity with sociolinguistics mean greater interest in research participation?
 
-cor_matrix <- cor(data$interested_application, data$sociolinguistics_score, use = "complete.obs")
+print("Does familiarity with sociolinguistics mean greater interest in research participation?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$interested_application, data$sociolinguistics_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = interested_application, y = sociolinguistics_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Sociolinguistics Familiarity", x = "Application Interest", y = "Sociolinguistics Familiarity")
+
+# Linear Regression
 
 model <- lm(sociolinguistics_score ~ interested_application, data = data)
+
 summary(model)
 
 # Does familiarity with citizen science encourage interest in participation?
 
-cor_matrix <- cor(data$interested_application, data$ft_cs, use = "complete.obs")
+print("Does familiarity with citizen science encourage interest in participation?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$interested_application, data$ft_cs, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = interested_application, y = ft_cs)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Citizen Science Familiarity", x = "Application Interest", y = "Citizen Science Familiarity")
+
+# Linear Regression
 
 model <- lm(ft_cs ~ interested_application, data = data)
+
 summary(model)
 
-# Does higher concern with data practices link to lower interest in participation?
+# Does concern with data practices link to interest in participation?
 
-cor_matrix <- cor(data$interested_application, data$concern_score, use = "complete.obs")
+print("Does concern with data practices link to interest in participation?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$interested_application, data$concern_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = interested_application, y = concern_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Concern Score", x = "Application Interest", y = "Concern Score")
+
+# Linear Regression
 
 model <- lm(concern_score ~ interested_application, data = data)
+
 summary(model)
 
 # Is familiarity with citizen science linked to previous participation in research?
 
-data$previous_research <- rowSums(data[, c("co_auoei", "co_ahomrc", "co_ago", "co_acono", "co_acofc")], na.rm = TRUE) / 5
+print("Is familiarity with citizen science linked to previous participation in research?")
 
-cor_matrix <- cor(data$ft_cs, data$previous_research, use = "complete.obs")
+# Correlation
 
-print(cor_matrix)
+correlation <- cor(data$ft_cs, data$contributed_research, use = "complete.obs")
 
-ggplot(data, aes(x = ft_cs, y = previous_research)) +
+print(correlation)
+
+# Plot
+
+ggplot(data, aes(x = ft_cs, y = contributed_research)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Citizen Science Familiarity and Previous Research Participation", x = "Citizen Science Familiarity", y = "Previous Research Participation")
 
-model <- lm(previous_research ~ ft_cs, data = data)
+# Linear Regression
+
+model <- lm(contributed_research ~ ft_cs, data = data)
+
 summary(model)
 
 # Does familiarity with research processes alter interest in research?
 
-cor_matrix <- cor(data$interested_application, data$previous_research, use = "complete.obs")
+print("Does familiarity with research processes alter interest in research?")
 
-print(cor_matrix)
+# Chi2
 
-ggplot(data, aes(x = interested_application, y = previous_research)) +
+contingency_table <- table(data$interested_application, data$contributed_research)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+
+# Correlation
+
+correlation <- cor(data$interested_application, data$contributed_research, use = "complete.obs")
+
+print(correlation)
+
+# Plot
+
+ggplot(data, aes(x = interested_application, y = contributed_research)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Previous Research Participation", x = "Application Interest", y = "Previous Research Participation")
 
-model <- lm(previous_research ~ interested_application, data = data)
+# Linear Regression
+
+model <- lm(contributed_research ~ interested_application, data = data)
+
 summary(model)
 
-# What type of project you have contributed to links to technology use?
+# EDIT Does type of project contributed to link to technology use?
 
-co_columns <- grep("^co_", colnames(data), value = TRUE)
+print("Does type of project contributed to link to technology use?")
 
-co_pa <- c(pa_columns, co_columns)
+# Clustering
 
 cp_data <- data[, co_pa]
 
@@ -773,17 +1496,18 @@ scaled_data <- scale(cp_data)
 summary(scaled_data)
 
 set.seed(123)
-wss <- numeric()
+
+wcss <- numeric()
 
 for (k in 1:10) {
   kmeans_result <- kmeans(scaled_data, centers = k, nstart = 25)
-  wss[k] <- kmeans_result$tot.withinss
+  wcss[k] <- kmeans_result$tot.withinss
 }
 
-plot(1:10, wss,
+plot(1:10, wcss,
   type = "b", pch = 19, frame = FALSE,
-  xlab = "Number of clusters K", ylab = "Total within-clusters sum of squares",
-  main = "Elbow Method for Determining Optimal K"
+  xlab = "Number of clusters", ylab = "Total",
+  main = "Elbow Method"
 )
 
 kmeans_result <- kmeans(scaled_data, centers = 3, nstart = 25)
@@ -793,233 +1517,448 @@ kmeans_result$centers
 
 data$cluster <- kmeans_result$cluster
 
+# PCA
+
 pca_result <- prcomp(scaled_data)
 
 plot(pca_result$x[, 1:2],
   col = data$cluster, pch = 16,
-  main = "PCA - Clusters", xlab = "PC1", ylab = "PC2"
+  main = "PCA", xlab = "PC1", ylab = "PC2"
 )
 
-text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.7, col = "black")
+text(pca_result$x[, 1:2], labels = data$ro_macro, pos = 3, cex = 0.5, col = "black")
 
 loadings <- pca_result$rotation
 loadings[, 1:2]
 
 # What demographics have engaged in research before?
 
-research <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "previous_research")]
+print("What demographics have engaged in research before?")
 
-summary(research)
+# Chi2
 
-ggplot(research, aes(x = gender_identity, y = previous_research)) +
+contingency_table <- table(data$gender_identity, data$contributed_research)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$education_completed, data$contributed_research)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+contingency_table <- table(data$region_origin, data$contributed_research)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = contributed_research)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Previous Research Participation", x = "Gender Identity", y = "Previous Research Participation")
 
-ggplot(research, aes(x = education_completed, y = previous_research)) +
+ggplot(data, aes(x = education_completed, y = contributed_research)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Previous Research Participation", x = "Education Level", y = "Previous Research Participation")
 
-ggplot(research, aes(x = ro_macro, y = previous_research)) +
+ggplot(data, aes(x = ro_macro, y = contributed_research)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Previous Research Participation", x = "Region of Origin", y = "Previous Research Participation")
 
-numeric_vars <- research[, c("age", "years_internet", "previous_research")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "contributed_research")], use = "complete.obs")
 
-anova_gender <- aov(previous_research ~ gender_identity, data = research)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(contributed_research ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(previous_research ~ education_completed, data = research)
+anova_education <- aov(contributed_research ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(previous_research ~ ro_macro, data = research)
+anova_region <- aov(contributed_research ~ ro_macro, data = data)
+
 summary(anova_region)
 
-# Are less educated individuals more likely to spend time gaming and scrolling?
+# Who is more likely to spend time using digital technology for entertainment?
 
-entertain_use <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "entertainment")]
+print("Who is more likely to spend time using digital technology for entertainment?")
 
-summary(entertain_use)
+# Plots
 
-ggplot(entertain_use, aes(x = gender_identity, y = entertainment)) +
+ggplot(data, aes(x = gender_identity, y = entertainment)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity and Entertainment Use", x = "Gender Identity", y = "Entertainment Use")
 
-ggplot(entertain_use, aes(x = education_completed, y = entertainment)) +
+ggplot(data, aes(x = education_completed, y = entertainment)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level and Entertainment Use", x = "Education Level", y = "Entertainment Use") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(entertain_use, aes(x = ro_macro, y = entertainment)) +
+ggplot(data, aes(x = ro_macro, y = entertainment)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin and Entertainment Use", x = "Region of Origin", y = "Entertainment Use")
 
-numeric_vars <- entertain_use[, c("age", "years_internet", "entertainment")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "entertainment")], use = "complete.obs")
 
-anova_gender <- aov(entertainment ~ gender_identity, data = entertain_use)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(entertainment ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(entertainment ~ education_completed, data = entertain_use)
+anova_education <- aov(entertainment ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(entertainment ~ ro_macro, data = entertain_use)
+anova_region <- aov(entertainment ~ ro_macro, data = data)
+
 summary(anova_region)
 
-###
+# Who is more likely to spend time using digital technology for gaming and browsing?
 
-data$bw_pg <- rowSums(data[, c("pa_bw", "pa_pg")], na.rm = TRUE) / 2
+print("Who is more likely to spend time using digital technology for gaming and browsing?")
 
-scrolling_use <- data[, c("gender_identity", "education_completed", "ro_macro", "age", "years_internet", "bw_pg")]
+# Plots
 
-summary(scrolling_use)
-
-ggplot(scrolling_use, aes(x = gender_identity, y = bw_pg)) +
+ggplot(data, aes(x = gender_identity, y = bw_pg)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Gender Identity", x = "Gender Identity", y = "Digital Literacy")
+  labs(title = "Gender Identity, Gaming and Browsing", x = "Gender Identity", y = "Gaming and Browsing")
 
-ggplot(scrolling_use, aes(x = education_completed, y = bw_pg)) +
+ggplot(data, aes(x = education_completed, y = bw_pg)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Education Level", x = "Education Level", y = "Digital Literacy")
+  labs(title = "Education Level, Gaming and Browsing", x = "Education Level", y = "Gaming and Browsing") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
 
-ggplot(scrolling_use, aes(x = ro_macro, y = bw_pg)) +
+ggplot(data, aes(x = ro_macro, y = bw_pg)) +
   geom_boxplot() +
-  labs(title = "Digital Literacy by Region of Origin", x = "Region of Origin", y = "Digital Literacy")
+  labs(title = "Region of Origin, Gaming and Browsing", x = "Region of Origin", y = "Gaming and Browsing")
 
-numeric_vars <- scrolling_use[, c("age", "years_internet", "bw_pg")]
+# Correlation
 
-cor_matrix <- cor(numeric_vars, use = "complete.obs")
-print(cor_matrix)
+correlation <- cor(data[, c("age", "years_internet", "bw_pg")], use = "complete.obs")
 
-anova_gender <- aov(bw_pg ~ gender_identity, data = scrolling_use)
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(bw_pg ~ gender_identity, data = data)
+
 summary(anova_gender)
 
-anova_education <- aov(bw_pg ~ education_completed, data = scrolling_use)
+anova_education <- aov(bw_pg ~ education_completed, data = data)
+
 summary(anova_education)
 
-anova_region <- aov(bw_pg ~ ro_macro, data = scrolling_use)
+anova_region <- aov(bw_pg ~ ro_macro, data = data)
+
 summary(anova_region)
 
 # What type of project you have contributed to links to engagement?
 
-co_application <- c(co_columns, "interested_application")
+print("What type of project you have contributed to links to engagement?")
 
-application <- data[, co_application]
+# Correlation
 
-cor_matrix <- cor(application, use = "complete.obs")
+correlation <- cor(application, use = "complete.obs")
 
-print(cor_matrix)
+print(correlation)
 
-# Does gamification interest those who are interested in engaging in research?
+# Does gamification interest those who are interested in an application?
 
-cor_matrix <- cor(data$interested_application, data$ms_ca, use = "complete.obs")
+print("Does gamification interest those who are interested in an application?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$interested_application, data$ms_ca, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = interested_application, y = ms_ca)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Gamification Motivation", x = "Application Interest", y = "Gamification Motivation")
+
+# Linear Regression
 
 model <- lm(ms_ca ~ interested_application, data = data)
+
 summary(model)
 
-###
+# Does gamification interest those who are interested in research in the past and present?
 
-data$past_present <- rowSums(data[, c("previous_research", "interested_application")], na.rm = TRUE) / 2
+print("Does gamification interest those who are interested in research in the past and present?")
 
-cor_matrix <- cor(data$past_present, data$ms_ca, use = "complete.obs")
+# Correlation
 
-print(cor_matrix)
+correlation <- cor(data$past_present, data$ms_ca, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = past_present, y = ms_ca)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Research Interest vs Gamification Motivation", x = "Research Interest", y = "Gamification Motivation")
+
+# Linear Regreession
 
 model <- lm(ms_ca ~ past_present, data = data)
+
 summary(model)
 
-# Do concerns over data limit engagement?
+# Do concerns over data relate to interest in an application?
 
-cor_matrix <- cor(data$interested_application, data$concern_score, use = "complete.obs")
+print("Do concerns over data relate to interest in an application?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$interested_application, data$concern_score, use = "complete.obs")
+
+print(correlation)
 
 ggplot(data, aes(x = interested_application, y = concern_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Application Interest and Concern Score", x = "Application Interest", y = "Concern Score")
+
+# Linear Regression
 
 model <- lm(concern_score ~ interested_application, data = data)
+
 summary(model)
 
-###
+# Do concerns over data relate to interest research in the past and present?
 
-cor_matrix <- cor(data$past_present, data$concern_score, use = "complete.obs")
+print("Do concerns over data relate to interest research in the past and present?")
 
-print(cor_matrix)
+# Correlation
+
+correlation <- cor(data$past_present, data$concern_score, use = "complete.obs")
+
+print(correlation)
+
+# Plot
 
 ggplot(data, aes(x = past_present, y = concern_score)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "blue") +
-  labs(title = "Digital Literacy vs Concern Score", x = "Digital Literacy", y = "Concern Score")
+  geom_smooth(method = "lm", color = "#0089c4") +
+  labs(title = "Research Interest and Concern Score", x = "Research Interest", y = "Concern Score")
+
+# Linear Regression
 
 model <- lm(concern_score ~ past_present, data = data)
+
 summary(model)
 
-# What concerns over data limit engagement?
+# What concerns over data limit interest in an application?
 
-cd_application <- c(cd_columns, "interested_application")
+print("What concerns over data limit interest in an application?")
 
-limiting_factors <- data[, cd_application]
+# Correlation
 
-cor_matrix <- cor(limiting_factors, use = "complete.obs")
+correlation <- cor(limiting_factors, use = "complete.obs")
 
-print(cor_matrix)
+print(correlation)
 
-###
+# What concerns over data limit interest in research in the past and present?
 
-cd_application <- c(cd_columns, "past_present")
+print("What concerns over data limit interest in research in the past and present?")
 
-limiting_factors <- data[, cd_application]
+# Correlation
 
-cor_matrix <- cor(limiting_factors, use = "complete.obs")
+correlation <- cor(lf_pp, use = "complete.obs")
 
-print(cor_matrix)
+print(correlation)
 
-# What kind of digital citizen is interested in contributing to research?
-# what use best predicts app + combined
+# What kind of digital citizen is interested in an application?
 
-pa_application <- c(pa_columns, "interested_application")
+print("What kind of digital citizen is interested in an application?")
 
-application <- data[, pa_application]
+# Correlation
 
-cor_matrix <- cor(application, use = "complete.obs")
+correlation <- cor(application, use = "complete.obs")
 
-print(cor_matrix)
+print(correlation)
 
-###
+# What kind of digital citizen is interested in research in the past and present?
 
-pa_application <- c(pa_columns, "past_present")
+print("What kind of digital citizen is interested in research in the past and present?")
 
-application <- data[, pa_application]
+# Correlation
 
-cor_matrix <- cor(application, use = "complete.obs")
+correlation <- cor(application_pp, use = "complete.obs")
 
-print(cor_matrix)
+print(correlation)
 
-# Which people are more motivated by egotistical or community-based motivations?
-# create egotistical / community-based categories
+# Which people are more motivated by egotistical motivations?
 
-# What demographics are interested in participating in research?
-# simple mobile app + combined score with prior research + previous
+print("Which people are more motivated by egotistical motivations?")
 
-# What motivates individuals to contribute to research?
-# combined research score and simple motivation of app
+# Plots
 
-# What inhibits individuals from contributing to research?
-# combined research score and simple motivation of app
+ggplot(data, aes(x = gender_identity, y = egotistical_motive)) +
+  geom_boxplot() +
+  labs(title = "Gender Identity and Egotistical Motivations", x = "Gender Identity", y = "Egotistical Motivations")
+
+ggplot(data, aes(x = education_completed, y = egotistical_motive)) +
+  geom_boxplot() +
+  labs(title = "Education Level and Egotistical Motivations", x = "Education Level", y = "Egotistical Motivations") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
+
+ggplot(data, aes(x = ro_macro, y = egotistical_motive)) +
+  geom_boxplot() +
+  labs(title = "Region of Origin and Egotistical Motivations", x = "Region of Origin", y = "Egotistical Motivations")
+
+# Correlation
+
+correlation <- cor(data[, c("age", "years_internet", "egotistical_motive")], use = "complete.obs")
+
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(egotistical_motive ~ gender_identity, data = data)
+
+summary(anova_gender)
+
+anova_education <- aov(egotistical_motive ~ education_completed, data = data)
+
+summary(anova_education)
+
+anova_region <- aov(egotistical_motive ~ ro_macro, data = data)
+
+summary(anova_region)
+
+# Which people are more motivated by collective motivations?
+
+print("Which people are more motivated by collective motivations?")
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = collective_motive)) +
+  geom_boxplot() +
+  labs(title = "Gender Identity and Collective Motivations", x = "Gender Identity", y = "Collective Motivations")
+
+ggplot(data, aes(x = education_completed, y = collective_motive)) +
+  geom_boxplot() +
+  labs(title = "Education Level and Collective Motivations", x = "Education Level", y = "Collective Motivations") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
+
+ggplot(data, aes(x = ro_macro, y = collective_motive)) +
+  geom_boxplot() +
+  labs(title = "Region of Origin and Collective Motivations", x = "Region of Origin", y = "Collective Motivations")
+
+# Correlation
+
+correlation <- cor(data[, c("age", "years_internet", "collective_motive")], use = "complete.obs")
+
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(collective_motive ~ gender_identity, data = data)
+
+summary(anova_gender)
+
+anova_education <- aov(collective_motive ~ education_completed, data = data)
+
+summary(anova_education)
+
+anova_region <- aov(collective_motive ~ ro_macro, data = data)
+
+summary(anova_region)
+
+# What demographics are interested in participating in research in the past and present?
+
+print("What demographics are interested in participating in research in the past and present?")
+
+# Plots
+
+ggplot(data, aes(x = gender_identity, y = past_present)) +
+  geom_boxplot() +
+  labs(title = "Gender Identity and Research Interest", x = "Gender Identity", y = "Research Interest")
+
+ggplot(data, aes(x = education_completed, y = past_present)) +
+  geom_boxplot() +
+  labs(title = "Education Level and Research Interest", x = "Education Level", y = "Research Interest") +
+    scale_x_discrete(labels = function(x) gsub(" ", "\n", x))
+
+ggplot(data, aes(x = ro_macro, y = past_present)) +
+  geom_boxplot() +
+  labs(title = "Region of Origin and Research Interest", x = "Region of Origin", y = "Research Interest")
+
+# Correlation
+
+correlation <- cor(data[, c("age", "years_internet", "past_present")], use = "complete.obs")
+
+print(correlation)
+
+# ANOVA
+
+anova_gender <- aov(past_present ~ gender_identity, data = data)
+
+summary(anova_gender)
+
+anova_education <- aov(past_present ~ education_completed, data = data)
+
+summary(anova_education)
+
+anova_region <- aov(past_present ~ ro_macro, data = data)
+
+summary(anova_region)
+
+# What motivates individuals to be interest in an application?
+
+print("What motivates individuals to be interest in an application?")
+
+# Correlation
+
+correlation <- cor(ms_ia, use = "complete.obs")
+
+print(correlation)
+
+# What motivates individuals to be interest in research in the past and present?
+
+print("What motivates individuals to be interest in research in the past and present?")
+
+# Correlation
+
+correlation <- cor(research_motives, use = "complete.obs")
+
+print(correlation)
+
+# OUTPUT
+
+sink(type = "output")

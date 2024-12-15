@@ -451,3 +451,169 @@ if (cs_result$p.value < 0.05) {
 #loadings <- pca_result$rotation
 
 #loadings[, 1:2]
+
+
+# REGION OF ORIGIN (MACRO) VS AGE
+
+print("REGION OF ORIGIN (MACRO) VS AGE")
+
+contingency_table <- table(data$ro_macro, data$age)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# GENDER IDENTITY VS AGE
+
+print("GENDER IDENTITY VS AGE")
+
+contingency_table <- table(data$gender_identity, data$age)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# GENDER IDENTITY VS INTERESTED IN FUTURE APPLICATION
+
+print("GENDER IDENTITY VS INTERESTED IN FUTURE APPLICATION")
+
+contingency_table <- table(data$gender_identity, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS LEVEL OF EDUCATION COMPLETED
+
+print("UNIVERSITY OF LAUSANNE VS LEVEL OF EDUCATION COMPLETED")
+
+contingency_table <- table(data$university_lausanne, data$education_completed)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# UNIVERSITY OF LAUSANNE VS INTERESTED IN FUTURE APPLICATION
+
+print("UNIVERSITY OF LAUSANNE VS INTERESTED IN FUTURE APPLICATION")
+
+contingency_table <- table(data$university_lausanne, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN VS LEVEL OF EDUCATION COMPLETED
+
+print("REGION OF ORIGIN VS LEVEL OF EDUCATION COMPLETED")
+
+contingency_table <- table(data$region_origin, data$education_completed)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN (MACRO) VS LEVEL OF EDUCATION COMPLETED
+
+print("REGION OF ORIGIN (MACRO) VS LEVEL OF EDUCATION COMPLETED")
+
+contingency_table <- table(data$ro_macro, data$education_completed)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# REGION OF ORIGIN VS AGE
+
+print("REGION OF ORIGIN VS AGE")
+
+contingency_table <- table(data$region_origin, data$age)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# LEVEL OF EDUCATION COMPLETED VS INTERESTED IN FUTURE APPLICATION
+
+print("LEVEL OF EDUCATION COMPLETED VS INTERESTED IN FUTURE APPLICATION")
+
+contingency_table <- table(data$education_completed, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# AGE VS INTERESTED IN FUTURE APPLICATION
+
+print("AGE VS INTERESTED IN FUTURE APPLICATION")
+
+contingency_table <- table(data$age, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
+
+# YEARS OF INTERNET USAGE VS INTERESTED IN FUTURE APPLICATION
+
+print("YEARS OF INTERNET USAGE VS INTERESTED IN FUTURE APPLICATION")
+
+contingency_table <- table(data$years_internet, data$interested_application)
+
+cs_result <- chisq.test(contingency_table)
+
+if (cs_result$p.value < 0.05) {
+  print("Significant")
+  print(contingency_table)
+} else {
+  print("Not significant")
+}
