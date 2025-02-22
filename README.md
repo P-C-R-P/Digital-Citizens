@@ -12,8 +12,7 @@ In order to run the statistical analysis on the final dataset provided, follow t
 Rscript data_questions.r``` in the terminal
 2. Observe the output in the file ```output.txt```
 3. Review the plots produced in the file ```
-Rplots.pdf
-```
+Rplots.pdf```
 
 ## Results
 
