@@ -9,8 +9,7 @@ This repository comprises a part of the research I undertook for my Master's dis
 In order to run the statistical analysis on the final dataset provided, follow the subsequent steps:
 
 1. Type the command ```R
-Rscript data_questions.r
-``` in the terminal
+Rscript data_questions.r``` in the terminal
 2. Observe the output in the file ```output.txt```
 3. Review the plots produced in the file ```
 Rplots.pdf
