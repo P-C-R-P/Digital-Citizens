@@ -1,6 +1,6 @@
 library(ggplot2)
 
-data <- read.csv("final-data.csv")
+data <- read.csv("Datasets/final-data.csv")
 data <- data[, !names(data) %in% "romansh_canton"]
 data <- subset(data, select = -concerns_score)
 data <- subset(data, select = -familiarity_score)

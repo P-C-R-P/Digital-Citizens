@@ -2,7 +2,7 @@
 
 source("translations.r")
 
-french_files <- c("public-french.csv", "university-french.csv")
+french_files <- c("Datasets/public-french.csv", "Datasets/university-french.csv")
 
 french_data <- lapply(french_files, function(file) {
   read.csv(file, fileEncoding = "UTF-8")
@@ -31,7 +31,7 @@ french_data <- translate_individuals(french_data, translations_individuals)
 
 # Open and read .csv files
 
-english_files <- c("digital-english.csv", "public-english.csv", "university-english.csv")
+english_files <- c("Datasets/digital-english.csv", "Datasets/public-english.csv", "Datasets/university-english.csv")
 
 english_data <- lapply(english_files, function(file) {
   read.csv(file, fileEncoding = "UTF-8")
@@ -420,4 +420,4 @@ for (row in seq_len(nrow(data))) {
 
 data <- lapply(data, unlist)
 
-write.csv(data, "cleaned-data.csv", row.names = FALSE)
+write.csv(data, "Datasets/cleaned-data.csv", row.names = FALSE)

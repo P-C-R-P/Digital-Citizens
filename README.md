@@ -1,5 +1,9 @@
 # Digital Citizens
 
+<figure>
+    <img alt="header" width="1000vw" src="Assets/header.png"/>
+</figure>
+
 ## Description
 
 This repository comprises a part of the research I undertook for my Master's dissertation, **Understanding Digital Citizens: An Analysis of Participation in Sociolinguistic Citizen Science** (2025). For this piece of research, I achieved the highest grade (6.0). The purpose of this project was to explore ways of optimising participation in research projects collecting sociolinguistic data within research institutions such as the University of Lausanne.
